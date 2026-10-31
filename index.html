@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tima Zadachka</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;color:#12314e;background:linear-gradient(160deg,#eaf3fb,#f6f9fd,#fff8ec);display:flex;justify-content:center;align-items:flex-start;padding:20px;min-height:100vh;transition:.5s}
+body.mode-tasks{background:linear-gradient(160deg,#fefce8,#fef8eb,#eefcf5)}
+body.mode-compare{background:linear-gradient(160deg,#f4f0ff,#fcf6ff,#fff5f8)}
+.bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bg span{position:absolute;font-size:6rem;font-family:serif;color:rgba(47,127,184,.1);font-weight:bold}
+.bg span:nth-child(1){top:5%;left:5%}
+.bg span:nth-child(2){top:70%;left:85%;color:rgba(232,178,58,.14)}
+.notebook{position:relative;z-index:1;width:100%;max-width:800px;background:#fff;border-radius:24px;padding:30px;box-shadow:0 20px 45px -18px rgba(15,43,70,.28);border:1px solid rgba(127,182,224,.4);transition:.5s}
+body.mode-tasks .notebook{border-color:rgba(232,178,58,.4)}
+body.mode-compare .notebook{border-color:rgba(157,118,255,.4)}
+header{display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:2px dashed rgba(47,127,184,.25);margin-bottom:16px;transition:.5s}
+body.mode-tasks header{border-bottom-color:rgba(232,178,58,.3)}
+body.mode-compare header{border-bottom-color:rgba(157,118,255,.3)}
+.header-left{display:flex;align-items:center;gap:16px}
+.logo-badge{width:64px;height:64px;border-radius:18px;background:linear-gradient(145deg,#2f7fb8,#1c4f7c);display:flex;justify-content:center;align-items:center;font-size:2.2rem;box-shadow:0 8px 16px -6px rgba(28,79,124,.6),inset 0 2px 4px rgba(255,255,255,.3);border:2px solid #fff;transition:.3s}
+body.mode-tasks .logo-badge{background:linear-gradient(145deg,#e8b23a,#b8860b)}
+body.mode-compare .logo-badge{background:linear-gradient(145deg,#9d76ff,#7042cc)}
+.header-text h1{font-size:1.8rem;color:#0f2b46;line-height:1.2}
+.header-text p{font-size:.95rem;color:#2f7fb8;font-style:italic;margin-top:2px;transition:.5s}
+body.mode-tasks .header-text p{color:#b8860b}
+body.mode-compare .header-text p{color:#7042cc}
+.header-text p b{font-style:normal;color:#1c4f7c}
+body.mode-tasks .header-text p b{color:#8a6200}
+body.mode-compare .header-text p b{color:#5a2ab3}
+.sound-toggle{background:#f0f7fd;border:2px solid #d8e9f8;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:1.2rem;display:grid;place-items:center}
+.mode-tabs{display:flex;background:#eaf3fb;border-radius:30px;padding:4px;margin-bottom:16px;transition:.5s}
+body.mode-tasks .mode-tabs{background:#fdf5e6}
+body.mode-compare .mode-tabs{background:#f4f0ff}
+.mode-tab{flex:1;border:none;background:transparent;padding:10px 5px;border-radius:26px;cursor:pointer;font-size:.95rem;font-weight:600;color:#7fb6e0;transition:.3s}
+body.mode-tasks .mode-tab{color:#d1b57a}
+body.mode-compare .mode-tab{color:#b0a0d0}
+.mode-tab.active{background:#fff;color:#1c4f7c;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+body.mode-tasks .mode-tab.active{color:#b8860b}
+body.mode-compare .mode-tab.active{color:#7042cc}
+.score-panel{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;background:linear-gradient(135deg,#fffaf0,#ffeec2);border:1px solid rgba(232,178,58,.55);border-radius:16px;padding:14px 18px;margin-bottom:20px}
+.score-total{display:flex;align-items:center;gap:8px;font-weight:600;color:#8a6200}
+.score-total .star{font-size:1.5rem}
+.score-total .points{font-size:1.8rem;font-weight:700;color:#b8860b}
+.rewards{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.reward-item{display:flex;align-items:center;gap:6px;background:#fff;border:2px solid #e8b23a;border-radius:30px;padding:4px 12px;font-size:.85rem;font-weight:700;color:#8a6200}
+.reward-item .count{font-size:1.1rem;color:#b8860b}
+.progress-info{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:#8a6200}
+.progress-bar-wrap{height:10px;background:#fff8e6;border-radius:20px;border:1px solid rgba(232,178,58,.5);overflow:hidden}
+.progress-bar{height:100%;width:0%;background:#e8a800;transition:width .45s}
+.rules-hint{font-size:.75rem;color:#9a7b2e;font-style:italic;text-align:right}
+.task-card{background:#f8fbfe;border:1px solid rgba(127,182,224,.5);border-radius:20px;padding:20px;transition:.5s}
+body.mode-tasks .task-card{background:#fffcf5;border-color:rgba(232,178,58,.4)}
+body.mode-compare .task-card{background:#fcfaff;border-color:rgba(157,118,255,.4)}
+.task-label{display:flex;justify-content:space-between;font-size:.75rem;text-transform:uppercase;letter-spacing:2px;color:#2f7fb8;font-weight:600;margin-bottom:12px;transition:.5s}
+body.mode-tasks .task-label{color:#b8860b}
+body.mode-compare .task-label{color:#7042cc}
+.task-number{background:#d8e9f8;color:#1c4f7c;padding:4px 10px;border-radius:20px}
+body.mode-tasks .task-number{background:#fdf0d5;color:#b8860b}
+body.mode-compare .task-number{background:#e8dfff;color:#7042cc}
+.formula-display{font-size:2.5rem;text-align:center;color:#0f2b46;font-weight:600;background:#fff;padding:20px;border-radius:16px;border:1px solid rgba(127,182,224,.45);margin-bottom:20px;min-height:100px;display:flex;align-items:center;justify-content:center;transition:.5s}
+body.mode-tasks .formula-display{border-color:rgba(232,178,58,.4)}
+body.mode-compare .formula-display{border-color:rgba(157,118,255,.4)}
+.formula-display.task-text{font-size:1.3rem;line-height:1.4;font-weight:500;text-align:left;justify-content:flex-start}
+.input-area{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center}
+.answer-box{flex:0 1 240px;display:flex;align-items:center;background:#fff;border:2px solid #7fb6e0;border-radius:40px;padding:4px 16px}
+body.mode-tasks .answer-box{border-color:#f0c674}
+body.mode-compare .answer-box{border-color:#bca5ff}
+.answer-box:focus-within{border-color:#2f7fb8;box-shadow:0 0 0 4px rgba(47,127,184,.15)}
+body.mode-tasks .answer-box:focus-within{border-color:#e8b23a;box-shadow:0 0 0 4px rgba(232,178,58,.2)}
+body.mode-compare .answer-box:focus-within{border-color:#9d76ff;box-shadow:0 0 0 4px rgba(157,118,255,.2)}
+.answer-box input{width:100%;border:none;outline:none;font-size:1.3rem;font-weight:600;color:#0f2b46;padding:10px 0;background:transparent;text-align:center}
+.button-group{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:none;cursor:pointer;font-size:.95rem;font-weight:600;padding:12px 20px;border-radius:40px;display:inline-flex;justify-content:center;align-items:center}
+.btn-primary{background:#1c5f93;color:#fff;box-shadow:0 4px 0 #123f61}
+body.mode-tasks .btn-primary{background:#e8b23a;color:#5a3d00;box-shadow:0 4px 0 #8a6200}
+body.mode-compare .btn-primary{background:#9d76ff;color:#fff;box-shadow:0 4px 0 #5a2ab3}
+.btn-secondary{background:#e8f2fb;color:#1c4f7c;box-shadow:0 4px 0 #c9def0}
+body.mode-tasks .btn-secondary{background:#fff3e0;color:#b8860b;box-shadow:0 4px 0 #f0e0c0}
+body.mode-compare .btn-secondary{background:#f0eaff;color:#7042cc;box-shadow:0 4px 0 #dcd0ff}
+.btn-hint{background:linear-gradient(135deg,#ffe9a8,#f5c542);color:#5a4200;box-shadow:0 4px 0 #d9b44a}
+.btn-hint:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn-next{margin-top:16px;width:100%;background:linear-gradient(135deg,#f7d97a,#e8b23a);color:#5a3d00;box-shadow:0 4px 0 #b8860b;font-size:1.05rem}
+.feedback{margin-top:16px;padding:12px 16px;border-radius:16px;font-size:1rem;display:flex;align-items:center;gap:10px;min-height:54px;border:1px solid transparent;transition:.3s}
+.feedback.neutral{background:#f2f8fd;color:#1c4f7c;border-color:rgba(127,182,224,.4)}
+body.mode-tasks .feedback.neutral{background:#fffaf0;color:#b8860b;border-color:rgba(232,178,58,.3)}
+body.mode-compare .feedback.neutral{background:#fcfaff;color:#7042cc;border-color:rgba(157,118,255,.3)}
+.feedback.success{background:#e6f8ee;color:#155a3a;border-color:#2fa86a}
+.feedback.error{background:#ffecec;color:#8a2020;border-color:#d95757}
+.feedback.bonus{background:#fff8e2;color:#6b4b00;border-color:#e8b23a;font-weight:600}
+.feedback.hint{background:#fff3d6;color:#8a5a00;border-color:#f0c674;font-weight:600}
+.footer-area{margin-top:20px;padding-top:16px;border-top:2px dashed rgba(127,182,224,.35);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center}
+.stats{display:flex;gap:10px;flex:1 1 250px}
+.stat-item{flex:1;display:flex;justify-content:center;gap:6px;background:#f0f7fd;border:1px solid #d8e9f8;padding:8px;border-radius:30px;font-size:.85rem;color:#1c4f7c}
+body.mode-tasks .stat-item{background:#fffaf0;border-color:#f0e0c0;color:#b8860b}
+body.mode-compare .stat-item{background:#fcfaff;border-color:#e8dfff;color:#7042cc}
+.stat-item span:last-child{font-weight:700;color:#2f7fb8}
+.btn-reset{background:#fff;border:2px solid #f0d0d0;color:#d95757;padding:8px 16px;border-radius:30px;font-size:.85rem;cursor:pointer;font-weight:600}
+.toast{position:fixed;top:20px;left:50%;transform:translate(-50%,-150%);background:#f5c542;color:#5a4200;border:2px solid #d9b44a;padding:12px 24px;border-radius:40px;font-size:1.1rem;font-weight:700;transition:.4s;z-index:999}
+.toast.show{transform:translate(-50%,0)}
+@media(max-width:600px){
+.notebook{padding:16px}
+.score-panel{grid-template-columns:1fr;text-align:center}
+.rewards,.score-total{justify-content:center}
+.rules-hint{text-align:center}
+.input-area{flex-direction:column}
+.answer-box,.button-group{width:100%}
+.button-group .btn{flex:1}
+.formula-display{font-size:2rem}
+.formula-display.task-text{font-size:1.1rem}
+.footer-area{flex-direction:column}
+.stats{width:100%}
+header{flex-direction:column;align-items:flex-start;gap:10px}
+.mode-tabs{flex-direction:column}
+body.mode-compare .formula-display{font-size:1.2rem;padding:15px 5px}
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><span>+</span><span>×</span></div>
+<main class="notebook">
+<header>
+<div class="header-left">
+<div class="logo-badge" id="logoIcon">📐</div>
+<div class="header-text"><h1>Tima Zadachka</h1><p>математика · <b>3 класс</b> · <span id="headerSubtitle">тренажёр на баллы</span></p></div>
+</div>
+<div class="header-controls"><button class="sound-toggle" id="soundBtn">🔊</button></div>
+</header>
+<div class="mode-tabs">
+<button class="mode-tab active" id="tabExamples">🧮 Примеры</button>
+<button class="mode-tab" id="tabTasks">📖 Задачки</button>
+<button class="mode-tab" id="tabCompare">⚖️ Сравнение</button>
+</div>
+<section class="score-panel">
+<div class="score-total"><span class="star">⭐</span><span>Баллы</span><span class="points" id="pointsTotal">0</span></div>
+<div class="progress-info"><span>Правильных подряд: <b id="streakCount">0</b> / 10</span><div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div></div>
+<div class="rewards">
+<div class="reward-item"><span>🪙</span>Монеты: <span class="count" id="coinsCount">0</span></div>
+<div class="reward-item"><span>💡</span>Подсказки: <span class="count" id="hintsCount">0</span></div>
+</div>
+<div class="rules-hint">10 → 5⭐ · 8 → 4⭐ · 7 → 3⭐<br>10 баллов → 🪙 · 50 баллов → 💡</div>
+</section>
+<section class="task-card">
+<div class="task-label"><span id="taskLabelText">Реши пример</span><span class="task-number" id="taskCounter">пример №1</span></div>
+<div class="formula-display" id="formulaDisplay">\( 7 + 5 = ? \)</div>
+<div class="input-area">
+<div class="answer-box"><input type="text" id="answerInput" placeholder="введи ответ" autocomplete="off"></div>
+<div class="button-group">
+<button class="btn btn-primary" id="checkBtn">✓ Проверить</button>
+<button class="btn btn-secondary" id="newTaskBtn">↻ Новый</button>
+<button class="btn btn-hint" id="hintBtn" disabled>💡 Подсказка</button>
+</div>
+</div>
+<div class="feedback neutral" id="feedback"><span id="feedbackIcon">🧮</span><span id="feedbackText">Реши пример и нажми «Проверить»</span></div>
+<button class="btn btn-next" id="nextTaskBtn">⏭ Следующий</button>
+</section>
+<section class="footer-area">
+<div class="stats">
+<div class="stat-item"><span>✔ решено</span><span id="solvedCount">0</span></div>
+<div class="stat-item"><span>✖ ошибок</span><span id="errorCount">0</span></div>
+<div class="stat-item"><span>📋 всего</span><span id="totalCount">0</span></div>
+</div>
+<button class="btn-reset" id="resetBtn">🔄 Начать заново</button>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+let audioCtx=null,soundEnabled=!0;
+function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}
+function playTone(f,t,d,v=.1,dl=0){if(!soundEnabled)return;initAudio();if(!audioCtx)return;setTimeout(()=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.setValueAtTime(f,audioCtx.currentTime);g.gain.setValueAtTime(v,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.01,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d)},dl*1000)}
+const sounds={
+click:()=>playTone(600,'sine',.1,.05),
+success:()=>{playTone(440,'sine',.1,.08,0);playTone(554,'sine',.1,.08,.1);playTone(659,'sine',.2,.08,.2)},
+error:()=>{playTone(220,'triangle',.2,.08,0);playTone(196,'triangle',.3,.08,.1)},
+bonus:()=>{playTone(523,'sine',.1,.1,0);playTone(659,'sine',.1,.1,.1);playTone(784,'sine',.1,.1,.2);playTone(1047,'sine',.4,.1,.3)},
+hint:()=>{playTone(880,'sine',.12,.08,0);playTone(1100,'sine',.18,.08,.1)}
+};
+const randInt=(m,n)=>Math.floor(Math.random()*(n-m+1))+m;
+function getExample(){const t=randInt(1,4);if(t===1){const a=randInt(2,90),b=randInt(2,100-a);return{latex:`${a} + ${b} = ?`,answer:String(a+b)}}if(t===2){const a=randInt(10,100),b=randInt(1,a);return{latex:`${a} - ${b} = ?`,answer:String(a-b)}}if(t===3){const a=randInt(2,10),b=randInt(2,10);return{latex:`${a} \\times ${b} = ?`,answer:String(a*b)}}const b=randInt(2,10),r=randInt(2,10);return{latex:`${b*r} \\div ${b} = ?`,answer:String(r)}}
+function getStory(){const tasks=[{text:(a,b)=>`У Тимы было ${a} яблок. Мама дала ему ещё ${b}. Сколько яблок стало?`,isPlus:!0},{text:(a,b)=>`В корзине лежало ${a} конфет. Петя съел ${b}. Сколько конфет осталось?`,isPlus:!1},{text:(a,b)=>`На столе стояло ${a} чашек. Оля поставила ещё ${b}. Сколько чашек стало?`,isPlus:!0},{text:(a,b)=>`В гараже было ${a} машинок. ${b} машинок уехало. Сколько осталось?`,isPlus:!1},{text:(a,b)=>`У Маши было ${a} наклеек. Она подарила ${b}. Сколько наклеек осталось?`,isPlus:!1},{text:(a,b)=>`В саду росло ${a} кустов. Посадили ещё ${b}. Сколько кустов стало?`,isPlus:!0}];const t=tasks[randInt(0,tasks.length-1)];let a,b,ans;if(t.isPlus){a=randInt(10,80);b=randInt(5,100-a);ans=a+b}else{a=randInt(20,100);b=randInt(5,a-5);ans=a-b}return{text:t.text(a,b),answer:String(ans)}}
+function getCompare(){const a=randInt(10,70),b=randInt(5,20),c=randInt(10,70),d=randInt(5,20);const l=a+b,r=c+d;let ans="=";if(l>r)ans=">";if(l<r)ans="<";return{latex:`${a} + ${b} \\; ? \\; ${c} + ${d}`,answer:ans}}
+let currentTask=null,taskIndex=1,solved=0,errors=0,total=0,answeredCorrectly=!1,points=0,correctStreak=0,toastTimer=null,currentMode='examples';
+let coins=0,hints=0,hintMilestones=0,streakRewarded=0;
+const el=id=>document.getElementById(id);
+function loadProgress(){const s=localStorage.getItem('tima_progress');if(s){const d=JSON.parse(s);solved=d.solved||0;errors=d.errors||0;total=d.total||0;points=d.points||0;correctStreak=d.correctStreak||0;coins=d.coins||0;hints=d.hints||0;hintMilestones=d.hintMilestones||0;streakRewarded=d.streakRewarded||0}}
+function saveProgress(){localStorage.setItem('tima_progress',JSON.stringify({solved,errors,total,points,correctStreak,coins,hints,hintMilestones,streakRewarded}))}
+function showToast(t){const e=el('toast');e.textContent=t;e.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove('show'),3000)}
+function updateUI(){el('solvedCount').textContent=solved;el('errorCount').textContent=errors;el('totalCount').textContent=total;el('pointsTotal').textContent=points;el('streakCount').textContent=correctStreak;el('progressBar').style.width=(correctStreak/10*100)+'%';el('coinsCount').textContent=coins;el('hintsCount').textContent=hints;el('hintBtn').disabled=!(hints>0&&!answeredCorrectly);saveProgress()}
+function setFeedback(type,text,icon='🧮'){el('feedback').className='feedback '+type;el('feedbackIcon').textContent=icon;el('feedbackText').textContent=text}
+function awardCoins(){const n=Math.floor(points/10);if(n>coins){const d=n-coins;coins=n;showToast(`🪙 +${d} монет!`);sounds.bonus()}}
+function awardHints(){const m=Math.floor(points/50);if(m>hintMilestones){const d=m-hintMilestones;hintMilestones=m;hints+=d;showToast(`💡 +${d} подсказка!`);sounds.hint()}}
+function useHint(){if(hints<=0||answeredCorrectly)return;hints--;sounds.hint();setFeedback('hint',`💡 Подсказка: правильный ответ — ${currentTask.answer}`,'💡');updateUI()}
+function switchMode(mode){if(mode===currentMode)return;currentMode=mode;sounds.click();document.body.classList.remove('mode-tasks','mode-compare');el('tabExamples').classList.remove('active');el('tabTasks').classList.remove('active');el('tabCompare').classList.remove('active');if(mode==='examples'){el('tabExamples').classList.add('active');el('taskLabelText').textContent='Реши пример';el('headerSubtitle').textContent='тренажёр на баллы';el('logoIcon').textContent='📐';el('formulaDisplay').classList.remove('task-text');el('answerInput').setAttribute('placeholder','введи ответ')}else if(mode==='tasks'){document.body.classList.add('mode-tasks');el('tabTasks').classList.add('active');el('taskLabelText').textContent='Прочитай задачку';el('headerSubtitle').textContent='учимся решать задачки';el('logoIcon').textContent='📖';el('formulaDisplay').classList.add('task-text');el('answerInput').setAttribute('placeholder','введи ответ')}else{document.body.classList.add('mode-compare');el('tabCompare').classList.add('active');el('taskLabelText').textContent='Сравни выражения';el('headerSubtitle').textContent='ставим знаки >, <, =';el('logoIcon').textContent='⚖️';el('formulaDisplay').classList.remove('task-text');el('answerInput').setAttribute('placeholder','>, < или =')}taskIndex=1;loadTask()}
+function loadTask(){answeredCorrectly=!1;if(currentMode==='examples'){currentTask=getExample();el('taskCounter').textContent=`пример №${taskIndex++}`;el('formulaDisplay').innerHTML='\\('+currentTask.latex+'\\)';if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([el('formulaDisplay')]);setFeedback('neutral','Реши пример и нажми «Проверить»')}else if(currentMode==='tasks'){currentTask=getStory();el('taskCounter').textContent=`задачка №${taskIndex++}`;el('formulaDisplay').textContent=currentTask.text;setFeedback('neutral','Прочитай задачку и введи ответ')}else{currentTask=getCompare();el('taskCounter').textContent=`сравни №${taskIndex++}`;el('formulaDisplay').innerHTML='\\('+currentTask.latex+'\\)';if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([el('formulaDisplay')]);setFeedback('neutral','Поставь знак: больше (>), меньше (<) или равно (=)')}el('answerInput').value='';el('answerInput').focus();updateUI()}
+function handleCheck(){if(!currentTask)return;sounds.click();if(answeredCorrectly){setFeedback('neutral','✅ Уже решено! Жми «Новый».','👍');return}let val=el('answerInput').value.trim();if(!val){setFeedback('neutral','✏️ Введи ответ!','✏️');return}let isCorrect=!1;if(currentMode==='compare'){if(val==='='||val==='равно')val='=';else if(val==='>'||val==='больше')val='>';else if(val==='<'||val==='меньше')val='<';isCorrect=val===currentTask.answer}else{const num=parseFloat(val.replace(',','.'));if(isNaN(num)){setFeedback('neutral','❓ Введи число!','❓');return}isCorrect=Math.abs(num-parseFloat(currentTask.answer))<1e-6}total++;if(isCorrect){solved++;answeredCorrectly=!0;correctStreak++;let bonusGiven=0;if(correctStreak>=10&&streakRewarded<10){bonusGiven=5;streakRewarded=10}else if(correctStreak>=8&&streakRewarded<8){bonusGiven=4;streakRewarded=8}else if(correctStreak>=7&&streakRewarded<7){bonusGiven=3;streakRewarded=7}if(bonusGiven>0){points+=bonusGiven;sounds.bonus();showToast(`⭐ +${bonusGiven} баллов!`);setFeedback('bonus',`🎉 +${bonusGiven} баллов! ${correctStreak} подряд!`,'🏆')}else{sounds.success();setFeedback('success',`✅ Верно! ${currentTask.answer} — правильный ответ.`,'🌟')}}else{errors++;correctStreak=0;streakRewarded=0;sounds.error();setFeedback('error',`❌ Неверно. Правильный ответ: ${currentTask.answer}`,'🤔')}awardCoins();awardHints();updateUI()}
+function handleReset(){sounds.click();if(confirm('Начать заново? Все баллы сбросятся.')){solved=0;errors=0;total=0;points=0;correctStreak=0;coins=0;hints=0;hintMilestones=0;streakRewarded=0;taskIndex=1;loadTask();updateUI();showToast('🔄 Прогресс сброшен!')}}
+el('checkBtn').addEventListener('click',handleCheck);
+el('hintBtn').addEventListener('click',useHint);
+el('newTaskBtn').addEventListener('click',()=>{sounds.click();loadTask()});
+el('nextTaskBtn').addEventListener('click',()=>{sounds.click();loadTask()});
+el('resetBtn').addEventListener('click',handleReset);
+el('tabExamples').addEventListener('click',()=>switchMode('examples'));
+el('tabTasks').addEventListener('click',()=>switchMode('tasks'));
+el('tabCompare').addEventListener('click',()=>switchMode('compare'));
+el('soundBtn').addEventListener('click',()=>{soundEnabled=!soundEnabled;el('soundBtn').textContent=soundEnabled?'🔊':'🔇';if(soundEnabled){initAudio();sounds.click()}});
+el('answerInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();handleCheck()}});
+loadProgress();loadTask();updateUI();
+});
+</script>
+</body>
+</html>
